@@ -55,6 +55,11 @@ Here is the first example using the `or` operator represented with `|`.
 
 It does exactly what you would think it does, it will accept strings **or** numbers.
 
+###  typed.strict
+If typed should panic on invalid types.
+
+When set to `false`, the code might be unstable.
+
 ###  typed.isArray(tbl)
 Is this an array?
 
