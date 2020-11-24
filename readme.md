@@ -1,12 +1,24 @@
-# Typed
+<div align="center">
+    <h1>Typed</h1>
+    <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/sovietkitsune/typed/testing?style=flat-square">
+</div>
 
-A module to aid in allowing for typed code
+Typed is a module to aid in allowing for typed code
 
-Typed gives clean errors that look like errors from misused standard functions
+Here we see it gives clean errors that look like errors from misused standard functions
 
 ```
-bad argument #1 to 'tostring' (string | function expected, got nil)
+bad argument #1 to 'tonumber' (string expected, got nil)
 ```
+
+## Table of contents
+
+* [Example](#quick-example)
+* [Types and arrays](#types-and-arrays)
+* [Logical statements](#logical-statements)
+* [Installation](#installation)
+* [Testing](#installation)
+* [Documentation](#documentation)
 
 ## Quick example
 
@@ -54,6 +66,33 @@ hi(1) -- No errors
 Here is the first example using the `or` operator represented with `|`.
 
 It does exactly what you would think it does, it will accept strings **or** numbers.
+
+## Installation
+
+You can install typed by using [lit](http://luvit.io/lit.html) or [Luarocks](https://luarocks.org).
+
+```sh
+# Using lit
+lit install SovietKitsune/typed
+# Using Luarocks
+luarocks install typed
+```
+
+You may also install it locally and place it somewhere where Lua can find it.
+
+```sh
+wget --output-document typed.lua https://git.io/JkPmL
+```
+
+## Testing
+
+Typed is tested using [busted](https://olivinelabs.com/busted/).
+
+```sh
+busted
+```
+
+## Documentation
 
 ###  typed.strict
 If typed should panic on invalid types.
