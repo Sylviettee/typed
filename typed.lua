@@ -1,3 +1,13 @@
+--[[lit-meta
+   name = "SovietKitsune/typed"
+   version = "1.0.2"
+   dependencies = {}
+   description = "A module to aid in allowing for typed code."
+   tags = { "lua", "types"}
+   license = "MIT"
+   author = { name = "Soviet Kitsune", email = "sovietkitsune@soviet.solutions" }
+   homepage = "https://github.com/SovietKitsune/typed"
+]]
 --- # Typed
 ---
 --- A module to aid in allowing for typed code
