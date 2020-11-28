@@ -92,6 +92,11 @@ Typed is tested using [busted](https://olivinelabs.com/busted/).
 busted
 ```
 
+## TODO
+
+* Logical `not` (`!`)
+* Typecast operators (`>`)
+
 ## Documentation
 
 ###  typed.strict

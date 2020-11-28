@@ -1,0 +1,9 @@
+{
+    "Lua.diagnostics.globals": [
+        "_",
+        "describe",
+        "it",
+        "LUA",
+        "spy"
+    ]
+}
