@@ -40,13 +40,13 @@ Typed dictionaries
    :lines: 137-139
    :dedent: 9
 
-Typed Arrays
+Typed arrays
 -------------
 
 .. literalinclude:: ../spec/typed_spec.lua
    :language: lua
    :lines: 388-392
-   :dedent: 9
+   :dedent: 12
 
 Schemas
 --------
