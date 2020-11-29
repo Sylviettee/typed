@@ -1,6 +1,8 @@
 <div align="center">
     <h1>Typed</h1>
     <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/sovietkitsune/typed/testing?style=flat-square">
+    <img alt="Codecov" src="https://img.shields.io/codecov/c/github/sovietkitsune/typed?style=flat-square">
+    <img alt="Read the Docs" src="https://img.shields.io/readthedocs/typed?style=flat-square">
 </div>
 
 Typed is a module to aid in allowing for typed code
