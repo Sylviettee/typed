@@ -1,6 +1,6 @@
 --[[lit-meta
    name = "SovietKitsune/typed"
-   version = "1.1.0"
+   version = "1.1.1"
    dependencies = {}
    description = "A module to aid in allowing for typed code."
    tags = { "lua", "types"}
@@ -295,6 +295,9 @@ function typed.func(name, ...)
 end
 
 --- Create a typed dictionary allowing only specific key and value types
+---@param keyType string
+---@param valueType string
+---@return table<any, any>
 function typed.typedDict(keyType, valueType)
    local tbl = {}
 
@@ -323,6 +326,9 @@ local Array = class 'Array'
 
 Array.__name = 'Array'
 
+--- Create a new array
+---@param starting any[]
+---@return Array
 function Array:initialize(starting)
    self._data = starting or {}
 end
@@ -441,7 +447,7 @@ end
 
 --- Return the first value which satisfies the function
 ---@param fn fun(val:any):boolean
----@return any,number|nil
+---@return any,number | nil
 function Array:find(fn)
    for i, v in self:pairs() do
       if fn(v) then
@@ -452,7 +458,7 @@ end
 
 --- Similar to array:find except returns what the function returns as long as its truthy
 ---@param fn fun(val:any):any
----@return any, number|nil
+---@return any, number | nil
 function Array:search(fn)
    for i, v in self:pairs() do
       local res = fn(v)
@@ -522,6 +528,10 @@ typed.Array = Array
 ---@class TypedArray: Array
 local TypedArray = class ('TypedArray', Array)
 
+--- Create a new typed array
+---@param arrType string
+---@param starting string
+---@return TypedArray
 function TypedArray:initialize(arrType, starting)
    Array.initialize(self)
 
@@ -555,6 +565,7 @@ Schema.__name = 'Schema' -- Typed
 
 --- Create a new schema
 ---@param name string
+---@return Schema
 function Schema:initialize(name)
    typed.func(_, 'string')(name)
 
@@ -585,16 +596,22 @@ end
 
 --- Validate a table to see if it matches the schema
 ---@param tbl table<any, any>
----@return boolean, string | nil
+---@return table<any, any> | boolean, string | nil
 function Schema:validate(tbl)
    local _, err = typed.resolve('table<string, any>', 1, 'validate')(tbl)
 
-   --- Ignore if it is some sort of table since `any` works wierd for some reason
+   --- Ignore if it is some sort of table since `any` works weird for some reason
    if not typed.whatIs(tbl):match('table') then
       return false, err
    end
 
+   local obj = {}
+
    for i, v in pairs(self._fields) do
+      tbl[i] = tbl[i] or v[2]
+
+      obj[i] = tbl[i]
+
       if tbl[i] == nil and v[2] == nil then -- Defaults
          return false, f('Non-null value %s was not found', i)
       elseif type(v[1]) ~= 'table' and typed.whatIs(tbl[i]) ~= v[1] then -- Type checks
@@ -613,7 +630,7 @@ function Schema:validate(tbl)
       end
    end
 
-   return true
+   return obj
 end
 
 typed.Schema = Schema
