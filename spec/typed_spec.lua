@@ -136,7 +136,7 @@ describe('typed', function()
       it('should panic on invalid types', function()
          assert.has.error(function()
             typed.typedDict('string', 'number')[3] = 2
-         end, 'bad argument #1 to \'?\' (string expected, got number)')
+         end)
       end)
    end)
 
