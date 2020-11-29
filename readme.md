@@ -1,6 +1,6 @@
 <div align="center">
    <h1>Typed</h1>
-   <a href="https://github.com/SovietKitsune/typed/actions>
+   <a href="https://github.com/SovietKitsune/typed/actions">
       <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/sovietkitsune/typed/testing?style=flat-square">
    </a>
    <a href="https://codecov.io/gh/sovietkitsune/typed">
