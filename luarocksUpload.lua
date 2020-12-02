@@ -59,8 +59,16 @@ build = {
 }
 ]], tag, gitTag)
 
-local rockspec = io.open("./rockspecs/typed-" .. tag .. '.rockspec', "w+")
+local location = "./rockspecs/typed-" .. tag .. '.rockspec'
+
+local rockspec = io.open(location, "w+")
 rockspec:write(spec)
 rockspec:close()
 
-print("./rockspecs/typed-" .. tag .. '.rockspec')
+local upload = io.popen("luarocks upload " .. location .. " --api-key=" .. os.getenv("API_KEY"))
+
+for line in upload:lines() do
+   print(line)
+end
+
+assert(upload:close())

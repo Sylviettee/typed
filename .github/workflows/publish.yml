@@ -18,8 +18,10 @@ jobs:
 
       - name: upload to Luarocks
         shell: bash
+        env:
+          API_KEY: ${{ secrets.LUAROCKS_KEY }}
         run: |
-          luarocks upload "$(lua genrockspec.lua)" --api-key=${{ secrets.LUAROCKS_KEY }}
+          lua luarocksUpload.lua
 
       - name: cleanup src rock
         run: |
@@ -53,6 +55,18 @@ jobs:
       - name: generate package.lua
         run: |
           ./luvit genpackage.lua
+
+      - name: generate lit config
+        run: |
+          cat > $HOME/.litconfig <<- EOM
+          privateKey: $HOME/.ssh/id_rsa
+          email: sovietkitsune@soviet.solutions
+          database: $HOME/.litdb.git
+          username: SovietKitsune
+          upstream: wss://lit.luvit.io/
+          name: Soviet Kitsune
+          defaultUpstream: wss://lit.luvit.io/
+          EOM
 
       - name: upload to Lit
         run: |
