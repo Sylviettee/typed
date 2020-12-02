@@ -1,5 +1,5 @@
 package = "typed"
-version = "1.2.3"
+version = "1.2.3-0"
 source = {
    url = "git://github.com/SovietKitsune/typed",
    tag = "v1.2.3"
