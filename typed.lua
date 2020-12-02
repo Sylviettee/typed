@@ -272,7 +272,7 @@ function typed.is(validator, value)
 
    -- We match the amount of `[]` as arrays can be nested
    if validator:sub(0, 3) == 'any' and type(value) == 'table' and typed.isArray(value) then
-      local left, right = validator:match('.-[%[%]].*'), typed.whatIs(value):match('.-[%[%]].*')
+      local left, right = validator:match('.-([%[%]].*)'), typed.whatIs(value):match('.-([%[%]].*)')
 
       if left:match('table') and right:match('table') then
          return tblTypesEq(left, right)
