@@ -20,7 +20,8 @@ jobs:
         shell: bash
         run: |
           location=$(lua genrockspec.lua)
-          luarocks upload $location --api-key=${{ secrets.LUAROCKS_KEY }}
+
+          luarocks upload "$location" --api-key=${{ secrets.LUAROCKS_KEY }}
 
       - uses: EndBug/add-and-commit@v5
         with:
@@ -41,10 +42,11 @@ jobs:
         shell: bash
         env:
           PRIVATE: ${{ secrets.LIT_PRIVATE }}
+          PUBLIC: ${{ secrets.LIT_PUBLIC }}
         run: |
           mkdir -p ~/.ssh
-          cat "${{ secrets.LIT_PUBLIC }}" > ~/.ssh/id_rsa.pub
-          cat "$PRIVATE" > ~/.ssh/id_rsa
+          echo "$PUBLIC" > ~/.ssh/id_rsa.pub
+          echo "$PRIVATE" > ~/.ssh/id_rsa
 
       - name: generate package.lua
         run: |
