@@ -5,7 +5,7 @@ on:
     types: [created]
 
 jobs:
-  setup:
+  publish-to-luarocks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,19 +16,8 @@ jobs:
 
       - uses: leafo/gh-actions-luarocks@v4.0.0
 
-      - name: install busted
-        run: |
-          luarocks install busted
-
-      - name: run tests
-        run: |
-          busted -o utfTerminal
-
-  publish-to-luarocks:
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
       - name: upload to Luarocks
+        shell: bash
         run: |
           location=$(lua genrockspec.lua)
           luarocks upload $location --api-key=${{ secrets.LUAROCKS_KEY }}
@@ -41,21 +30,25 @@ jobs:
 
   publish-to-lit:
     runs-on: ubuntu-latest
-    needs: setup
     steps:
+      - uses: actions/checkout@v2
+
       - name: install Luvit
         run: |
           curl -L https://github.com/luvit/lit/raw/master/get-lit.sh | sh
 
       - name: store away keys
+        shell: bash
+        env:
+          PRIVATE: ${{ secrets.LIT_PRIVATE }}
         run: |
           mkdir -p ~/.ssh
           cat "${{ secrets.LIT_PUBLIC }}" > ~/.ssh/id_rsa.pub
-          cat "${{ secrets.LIT_PRIVATE }}" > ~/.ssh/id_rsa
+          cat "$PRIVATE" > ~/.ssh/id_rsa
 
       - name: generate package.lua
         run: |
-          lua genpackage.lua
+          luvit genpackage.lua
 
       - name: upload to Lit
         run: |
