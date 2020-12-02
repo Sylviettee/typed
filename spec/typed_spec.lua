@@ -3,7 +3,9 @@ local typed = require 'typed'
 -- Prevents exiting program
 _G._TEST = true
 
-os.exit = function() error(os.error) end
+rawset(os, 'exit', function()
+   error(rawget(os, 'error'))
+end)
 
 describe('typed', function()
    describe('.isArray', function()

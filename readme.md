@@ -215,11 +215,19 @@ busted
 
 ## TODO
 
-* Logical `not` (`!`)
-* Typecast operators (`>`)
-* Pairs and len tests for 5.2+
-* Logical `or` (`|`) on schemas
-
+* [x] Logical `not` (`!`)
+* [ ] Typecast operators (`>`)
+* [ ] Pairs and len tests for 5.2+
+* [x] Logical `or` (`|`) on schemas
+* [ ] Remove `unknown[]` and just say the empty array is whatever array the function wants
+* [ ] [Enum type](https://github.com/teal-language/tl/blob/master/docs/tutorial.md#enums)
+* [ ] [Tuple type](https://www.typescriptlang.org/docs/handbook/basic-types.html#tuple)
+* [ ] More advanced [function type](https://emmylua.github.io/annotations/fun.html) with [generics](https://emmylua.github.io/annotations/generic.html)
+* [ ] Give advice on how to fix issues eg `Typecast number to string`
+* [ ] [Custom types / aliases](https://emmylua.github.io/annotations/alias.html)
+* [ ] Type inference via EmmyLua comments?
+* [ ] [Vararg](https://emmylua.github.io/annotations/vararg.html) eg `string...`. Only allowed as the last parameter and is equivalent to `string[]` and passing the vararg as a table.
+* [ ] Allow custom types to have generics eg `typed.type('optional<T>', 'T | nil')` and `optional<string>` will gsub the `T` for `string` then match.
 ## Documentation
 
 Documentation can be found [here](https://typed.readthedocs.org)

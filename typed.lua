@@ -1,13 +1,3 @@
---[[lit-meta
-   name = "SovietKitsune/typed"
-   version = "1.1.1"
-   dependencies = {}
-   description = "A module to aid in allowing for typed code."
-   tags = { "lua", "types"}
-   license = "MIT"
-   author = { name = "Soviet Kitsune", email = "sovietkitsune@soviet.solutions" }
-   homepage = "https://github.com/SovietKitsune/typed"
-]]
 --- # Typed
 ---
 --- A module to aid in allowing for typed code
@@ -69,7 +59,8 @@
 local typed = {}
 local f = string.format
 
-unpack = unpack or table.unpack
+-- We use rawget for strict.lua and linting
+local unpack = rawget(_G, "unpack") or rawget(table, 'unpack')
 
 
 --- If typed should panic on invalid types.
@@ -123,16 +114,30 @@ local function isLuvit()
    local succ = pcall(require, 'core')
 
    -- If a module called core exists, set the LUA environment variable
-   if LUA then
+   if rawget(_G, 'LUA') then
       return false
    end
 
    return succ
 end
 
-local function eq(l, r, msg)
-   if l ~= r then
-      error(msg .. '\nleft: ' .. tostring(l) .. '\nright: ' .. tostring(r))
+local function tblTypesEq(left, right)
+   local key, val = left:match('table<(.-), (.-)>')
+   local rKey, rVal = right:match('table<(.-), (.-)>')
+
+   if key == 'any' and val == rVal then
+      return true
+   elseif val == 'any' and key == rKey then
+      return true
+   elseif key == 'any' and val == 'any' then
+      return true
+   elseif key:match('table') and rKey:match('table') then
+      return tblTypesEq(key, rKey)
+   elseif val:match('table') and rVal:match('table') then
+      return tblTypesEq(val, rVal)
+   else
+      -- TODO; handle primitives
+      return false
    end
 end
 
@@ -141,6 +146,8 @@ end
 ---@param tbl table<any, any>
 ---@return boolean
 function typed.isArray(tbl)
+   if type(tbl) ~= 'table' then return false end
+
    for i in pairs(tbl) do
       if type(i) ~= 'number' then
          return false
@@ -152,17 +159,18 @@ end
 
 --- What is this specific item?
 ---
---- Note: This can be overridden with `__name` field.
+--- Note: This can be overridden with `__name` or `__type` field.
 ---
 --- Arrays are represented with `type[]` and tables with `table<keyType, valueType>`.
 ---@param this any
 ---@return string
 function typed.whatIs(this)
-   if type(this) == 'table' and this.__name then
-      if this.__name == 'Array' then
+   if type(this) == 'table' and (this.__name or this.__type) then
+      local given = this.__name or this.__type
+      if given == 'Array' then
          return typed.whatIs(this._data)
       else
-         return this.__name
+         return given
       end
    else
       if type(this) == 'table' then
@@ -227,21 +235,66 @@ function typed.resolve(validator, pos, name)
       '\' (' .. table.concat(parts, ' | ') .. ' expected, got %s)'
 
    return function(x)
-      local matches
+      local matches = typed.is(validator, x)
 
-      for _, v in pairs(parts) do
-         if typed.whatIs(x) == v or v == 'any' then
-            matches = v
-            break
-         end
-      end
-
-      if matches == nil then
+      if matches == false then
          return nil, string.format(expects, typed.whatIs(x))
       else
          return true
       end
    end
+end
+
+--- Check if the `value` matches the `validator`.
+---
+--- Used internally by `typed.resolve
+---@param validator string
+---@param value any
+---@return boolean
+function typed.is(validator, value)
+   -- Handle logical or statements by recalling the function until one of them is true or we go through them all
+   if validator:match('|') then
+      for _, v in pairs(split(validator, '|')) do
+         local part = trim(v)
+
+         if typed.is(part, value) then
+            return true
+         end
+      end
+
+      return false
+   end
+
+   -- Any checks are troublesome as they can be anywhere
+   if validator == 'any' then
+      return true
+   end
+
+   -- We match the amount of `[]` as arrays can be nested
+   if validator:sub(0, 3) == 'any' and type(value) == 'table' and typed.isArray(value) then
+      local left, right = validator:match('.-[%[%]].*'), typed.whatIs(value):match('.-[%[%]].*')
+
+      if left:match('table') and right:match('table') then
+         return tblTypesEq(left, right)
+      elseif left:match('table') or right:match('table') then
+         return false -- If something has a table while something else doesn't, they can't be similar
+      else
+         return left == right
+      end
+   end
+
+   -- Table checks are handled differently due to them being able to be nested
+   -- Recursion is used to handle the nesting
+   if validator:match('table') and type(value) == 'table' and not typed.isArray(value) then
+      return tblTypesEq(validator, typed.whatIs(value))
+   end
+
+   -- Logical not
+   if validator:sub(0, 1) == '!' then
+      return validator:sub(2, #validator) ~= typed.whatIs(value)
+   end
+
+   return validator == typed.whatIs(value)
 end
 
 --- Create a new typed function.
@@ -276,12 +329,12 @@ function typed.func(name, ...)
 
          if not succ then
             -- Testing
-            if not _TEST then
+            if not rawget(_G, '_TEST') then
                print(debug.traceback(string.format('Uncaught exception:\n%s:%u: %s', newInfo.short_src,
                                                    newInfo.currentline, err), 3))
             else
                -- Instead store the error within os
-               os.error = err
+               rawset(os, 'error', err)
             end
 
             if typed.panic then
@@ -302,11 +355,13 @@ function typed.typedDict(keyType, valueType)
    local tbl = {}
 
    tbl.__name = 'table<' .. keyType .. ', ' .. valueType .. '>'
+   tbl.__keys = keyType
+   tbl.__values = valueType
 
    local mt = {}
 
    function mt:__newindex(k, v)
-      typed.func(_, keyType, valueType)(k, v)
+      typed.func(_, self.__keyType, self.__valueType)(k, v)
       tbl[k] = v
    end
 
@@ -586,7 +641,10 @@ function Schema:field(name, value, default)
    typed.func(_, 'string', 'string | Schema')(name, value)
 
    if default ~= nil then
-      eq(type(value) == 'table' and value._id[1] or value, typed.whatIs(default), 'Default value must match value type!')
+      assert(
+         typed.is(type(value) == 'table' and value._id[1] or value, default),
+         'Default value must match value type!'
+      )
    end
 
    self._fields[name] = {value, default}
@@ -614,7 +672,7 @@ function Schema:validate(tbl)
 
       if tbl[i] == nil and v[2] == nil then -- Defaults
          return false, f('Non-null value %s was not found', i)
-      elseif type(v[1]) ~= 'table' and typed.whatIs(tbl[i]) ~= v[1] then -- Type checks
+      elseif type(v[1]) ~= 'table' and typed.is(v[1], tbl[i]) then -- Type checks
          return false, f('Expected %s, got %s on field %s', v[1], typed.whatIs(tbl[i]), i)
       elseif type(v[1]) == 'table' and not v[1]:validate(tbl[i]) then
          local _, newErr = v[1]:validate(tbl[i])
