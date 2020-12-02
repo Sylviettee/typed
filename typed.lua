@@ -279,7 +279,7 @@ function typed.is(validator, value)
       elseif left:match('table') or right:match('table') then
          return false -- If something has a table while something else doesn't, they can't be similar
       else
-         return left == right
+         return left == right:sub(0, #left) -- Since its any, any[][] should accept any[][][] as any is anything
       end
    end
 
