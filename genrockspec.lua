@@ -21,19 +21,27 @@ if tag:match('fatal') then
    os.exit(-1)
 end
 
+local gitTag = tag
+
+tag = tag:gsub('v', '')
+
+if not tag:match('%-') then
+   tag = tag .. '-0'
+end
+
 local spec = f([[
 package = "typed"
 version = "%s"
 
 source = {
-   url = "git@github.com:SovietKitsune/typed.git",
+   url = "git://github.com/SovietKitsune/typed",
    tag = "%s"
 }
 
 description = {
    summary = "Typed is a module to aid in allowing for typed code",
 
-   description = "Typed gives clean errors that look like errors from misused standard functions"
+   detailed = "Typed gives clean errors that look like errors from misused standard functions",
 
    homepage = "https://github.com/SovietKitsune/typed",
    license = "MIT"
@@ -49,7 +57,7 @@ build = {
       typed = "typed.lua"
    }
 }
-]], tag, tag)
+]], tag, gitTag)
 
 local rockspec = io.open("./rockspecs/typed-" .. tag .. '.rockspec', "w+")
 rockspec:write(spec)

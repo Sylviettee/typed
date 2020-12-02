@@ -19,9 +19,11 @@ jobs:
       - name: upload to Luarocks
         shell: bash
         run: |
-          location=$(lua genrockspec.lua)
+          luarocks upload "$(lua genrockspec.lua)" --api-key=${{ secrets.LUAROCKS_KEY }}
 
-          luarocks upload "$location" --api-key=${{ secrets.LUAROCKS_KEY }}
+      - name: cleanup src rock
+        run: |
+          rm *.src.rock
 
       - uses: EndBug/add-and-commit@v5
         with:
@@ -50,9 +52,9 @@ jobs:
 
       - name: generate package.lua
         run: |
-          luvit genpackage.lua
+          ./luvit genpackage.lua
 
       - name: upload to Lit
         run: |
-          lit auth SovietKitsune
-          lit publish
+          ./lit auth SovietKitsune
+          ./lit publish
